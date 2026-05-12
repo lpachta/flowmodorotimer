@@ -9,6 +9,7 @@ type TaskAction = {
     | "delete"
     | "complete"
     | "activate"
+    | "activate_next"
     | "sort"
     | "modify"
     | "save_edit";
@@ -44,6 +45,8 @@ export default function tasksReducer(
     }
     case "complete": {
       if (!action.id) return tasks;
+      const completedIndex = tasks.findIndex((task) => task.id === action.id);
+      const wasUncompleted = !tasks[completedIndex]?.completed;
       const updated = tasks.map((task) => {
         if (task.id !== action.id) return task;
         const target_completed = !task.completed;
@@ -56,6 +59,14 @@ export default function tasksReducer(
           active: target_completed ? false : task.active,
         };
       });
+      if (wasUncompleted) {
+        for (let i = completedIndex + 1; i < updated.length; i++) {
+          if (!updated[i].completed) {
+            updated[i] = { ...updated[i], active: true };
+            break;
+          }
+        }
+      }
       localStorage.setItem("tasks", JSON.stringify(updated));
       return updated;
     }
@@ -68,6 +79,31 @@ export default function tasksReducer(
       });
       localStorage.setItem("tasks", JSON.stringify(updated));
       return updated;
+    }
+    case "activate_next": {
+      const activeIndex = tasks.findIndex((task) => task.active);
+      const startIndex = activeIndex === -1 ? 0 : activeIndex + 1;
+      for (let i = startIndex; i < tasks.length; i++) {
+        if (!tasks[i].completed) {
+          const updated = tasks.map((task) => ({
+            ...task,
+            active: task.id === tasks[i].id,
+          }));
+          localStorage.setItem("tasks", JSON.stringify(updated));
+          return updated;
+        }
+      }
+      for (let i = 0; i < startIndex; i++) {
+        if (!tasks[i].completed) {
+          const updated = tasks.map((task) => ({
+            ...task,
+            active: task.id === tasks[i].id,
+          }));
+          localStorage.setItem("tasks", JSON.stringify(updated));
+          return updated;
+        }
+      }
+      return tasks;
     }
     case "delete": {
       const targetTask = tasks.find((task) => task.id === action.id);

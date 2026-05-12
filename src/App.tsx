@@ -1,10 +1,10 @@
 import Stopwatch from "./features/Stopwatch/Stopwatch";
 import { ThemeProvider } from "@/components/theme-provider";
-import Tasks, { type TaskType } from "./features/Tasks/Tasks";
+import Tasks, { type TaskType, type TasksHandle } from "./features/Tasks/Tasks";
 import useSettings from "./features/SettingsEditor/hooks/useSettings";
 import { FlowtimeNavigationMenu } from "./components/flowtime-nav";
 import { FaRegEyeSlash, FaRegEye } from "react-icons/fa";
-import { useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { PiTarget } from "react-icons/pi";
 import Footer from "./components/footer";
 
@@ -12,6 +12,11 @@ function App() {
   const focusedTaskState = useState<TaskType | null>(null);
   const [focusedTask] = focusedTaskState;
   const settings = useSettings();
+  const tasksRef = useRef<TasksHandle>(null);
+
+  const handleBreakEnd = useCallback(() => {
+    tasksRef.current?.advanceToNextTask();
+  }, []);
 
   function handleHideTaskSection() {
     settings.setTaskSectionVisible(!settings.taskSectionVisible);
@@ -38,7 +43,10 @@ function App() {
                   {focusedTask?.name}
                 </div>
                 <div className="flex flex-col container p-4 bg-secondary rounded-lg border max-w-lg mb-8">
-                  <Stopwatch settings={settings} />
+                  <Stopwatch
+                    settings={settings}
+                    onBreakEnd={handleBreakEnd}
+                  />
                   <div className="flex justify-center">
                     {settings.taskSectionVisible ? (
                       <FaRegEyeSlash onClick={() => handleHideTaskSection()} />
@@ -47,6 +55,7 @@ function App() {
                     )}
                   </div>
                   <Tasks
+                    ref={tasksRef}
                     focusedTaskState={focusedTaskState}
                     settings={settings}
                   />

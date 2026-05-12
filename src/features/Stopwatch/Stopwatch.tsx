@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import Break from "../Break/Break.tsx";
 import { Button } from "../../components/ui/button";
 import { FaPlay, FaRotateLeft } from "react-icons/fa6";
-import { FaCoffee } from "react-icons/fa";
+import { FaCoffee, FaBell } from "react-icons/fa";
 import { RiSkipForwardFill } from "react-icons/ri";
 import { Badge } from "../../components/ui/badge";
 import { TbFocus2 } from "react-icons/tb";
@@ -14,10 +14,14 @@ import useSoundEffect from "./useSoundEffect.ts";
 type Interval = NodeJS.Timeout | null;
 type TimerMode = "idle" | "focus" | "break";
 
-const Stopwatch = ({ settings }: settingsType) => {
+const Stopwatch = ({
+  settings,
+  onBreakEnd,
+}: settingsType & { onBreakEnd?: () => void }) => {
   const [mode, setMode] = useState<TimerMode>("idle");
   const [time, setTime] = useState(0);
   const [breakTime, setBreakTime] = useState(0);
+  const [isRinging, setIsRinging] = useState(false);
   const lastTimestampRef = useRef(Date.now());
 
   const buttonAudioRef = useRef<HTMLAudioElement | null>(null);
@@ -56,11 +60,21 @@ const Stopwatch = ({ settings }: settingsType) => {
         setBreakTime((time) => {
           const updated = time - delta;
           if (updated <= 0) {
-            timerAudioRef.current?.play();
-            if (autoplayEnabled) {
-              setMode("focus");
-            } else {
+            if (settings.ringUntilDismissed) {
+              timerAudioRef.current!.loop = true;
+              timerAudioRef.current?.play();
+              setIsRinging(true);
               setMode("idle");
+            } else {
+              timerAudioRef.current?.play();
+              if (settings.autoNextTask) {
+                onBreakEnd?.();
+              }
+              if (autoplayEnabled) {
+                setMode("focus");
+              } else {
+                setMode("idle");
+              }
             }
             return 0;
           }
@@ -77,7 +91,7 @@ const Stopwatch = ({ settings }: settingsType) => {
         clearInterval(interval);
       }
     };
-  }, [mode, autoplayEnabled]);
+  }, [mode, autoplayEnabled, settings.autoNextTask, onBreakEnd, settings.ringUntilDismissed]);
 
   const startStopwatch = () => {
     buttonAudioRef.current?.play();
@@ -101,6 +115,23 @@ const Stopwatch = ({ settings }: settingsType) => {
     setMode("idle");
   };
 
+  const dismissRing = () => {
+    if (timerAudioRef.current) {
+      timerAudioRef.current.loop = false;
+      timerAudioRef.current.pause();
+      timerAudioRef.current.currentTime = 0;
+    }
+    setIsRinging(false);
+    if (settings.autoNextTask) {
+      onBreakEnd?.();
+    }
+    if (autoplayEnabled) {
+      setMode("focus");
+    } else {
+      setMode("idle");
+    }
+  };
+
   const formatted = formatStopwatchTime(time);
   const formattedBreak = formatStopwatchTime(breakTime);
   const { totalMinutes } = formatStopwatchTime(BREAK_TIME);
@@ -122,7 +153,14 @@ const Stopwatch = ({ settings }: settingsType) => {
             </Badge>
           </>
         )}
-        {mode === "idle" && (
+        {isRinging && (
+          <>
+            <Badge variant="outline">
+              Ringing <FaBell />
+            </Badge>
+          </>
+        )}
+        {mode === "idle" && !isRinging && (
           <>
             <Badge variant="outline">
               Idle <MdMotionPhotosPaused />
@@ -171,13 +209,23 @@ const Stopwatch = ({ settings }: settingsType) => {
               <RiSkipForwardFill />
             </Button>
           )}
-          {mode === "idle" && (
+          {mode === "idle" && !isRinging && (
             <Button
               onClick={startStopwatch}
               size="lg"
               aria-description="Start stopwatch"
             >
               <FaPlay />
+            </Button>
+          )}
+          {isRinging && (
+            <Button
+              onClick={dismissRing}
+              size="lg"
+              aria-description="Dismiss alarm"
+              variant="default"
+            >
+              Dismiss
             </Button>
           )}
           <Button
