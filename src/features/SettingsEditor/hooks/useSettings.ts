@@ -6,6 +6,7 @@ type localStorageSettings = {
   soundEffect?: SoundEffect;
   autoplay?: boolean;
   autoNextTask?: boolean;
+  autoNextTaskOnComplete?: boolean;
   taskSectionVisible?: boolean;
   ringUntilDismissed?: boolean;
 };
@@ -25,9 +26,13 @@ export default function useSettings() {
   const [autoNextTask, setAutoNextTask] = useState<boolean>(false);
   const [draftAutoNextTask, setDraftAutoNextTask] = useState<boolean>(false);
 
+  const [autoNextTaskOnComplete, setAutoNextTaskOnComplete] = useState<boolean>(false);
+  const [draftAutoNextTaskOnComplete, setDraftAutoNextTaskOnComplete] = useState<boolean>(false);
+
   const [ringUntilDismissed, setRingUntilDismissed] = useState<boolean>(false);
   const [draftRingUntilDismissed, setDraftRingUntilDismissed] =
     useState<boolean>(false);
+
   const [taskSectionVisible, setTaskSectionVisible] = useState(true);
 
   useEffect(() => {
@@ -50,10 +55,15 @@ export default function useSettings() {
       setAutoNextTask(parsedAutoNextTask);
       setDraftAutoNextTask(parsedAutoNextTask);
 
+      const parsedAutoNextTaskOnComplete = parsedSettings["autoNextTaskOnComplete"];
+      setAutoNextTaskOnComplete(parsedAutoNextTaskOnComplete === true);
+      setDraftAutoNextTaskOnComplete(parsedAutoNextTaskOnComplete === true);
+
       const parsedRingUntilDismissed =
         parsedSettings["ringUntilDismissed"] || false;
       setRingUntilDismissed(parsedRingUntilDismissed);
       setDraftRingUntilDismissed(parsedRingUntilDismissed);
+
       const parsedTaskVisibility = parsedSettings["taskSectionVisible"];
       setTaskSectionVisible(parsedTaskVisibility);
     }
@@ -85,6 +95,10 @@ export default function useSettings() {
     setAutoNextTask,
     draftAutoNextTask,
     setDraftAutoNextTask,
+    autoNextTaskOnComplete,
+    setAutoNextTaskOnComplete,
+    draftAutoNextTaskOnComplete,
+    setDraftAutoNextTaskOnComplete,
     ringUntilDismissed,
     setRingUntilDismissed,
     draftRingUntilDismissed,

@@ -26,6 +26,7 @@ const Stopwatch = ({
 
   const buttonAudioRef = useRef<HTMLAudioElement | null>(null);
   const timerAudioRef = useRef<HTMLAudioElement | null>(null);
+  const breakEndedRef = useRef(false);
 
   const timerSound = useSoundEffect(settings.soundEffect);
 
@@ -52,6 +53,7 @@ const Stopwatch = ({
         setTime((time) => time + delta);
       }, 100);
     } else if (mode === "break") {
+      breakEndedRef.current = false;
       interval = setInterval(() => {
         const now = Date.now();
         const delta = now - lastTimestampRef.current;
@@ -59,7 +61,8 @@ const Stopwatch = ({
 
         setBreakTime((time) => {
           const updated = time - delta;
-          if (updated <= 0) {
+          if (updated <= 0 && !breakEndedRef.current) {
+            breakEndedRef.current = true;
             if (settings.ringUntilDismissed) {
               timerAudioRef.current!.loop = true;
               timerAudioRef.current?.play();

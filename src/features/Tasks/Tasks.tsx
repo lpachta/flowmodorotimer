@@ -96,9 +96,14 @@ const Tasks = forwardRef<TasksHandle, FocusedTaskState>(
       }
     };
 
-    const handleTaskCompletion = (id: CryptoUUID) => {
-      dispatch({ type: "complete", id: id, audioRef: completionAudioRef });
-    };
+     const handleTaskCompletion = (id: CryptoUUID) => {
+       dispatch({
+         type: "complete",
+         id: id,
+         audioRef: completionAudioRef,
+         autoAdvance: settings.autoNextTaskOnComplete,
+       });
+     };
 
     const handleTaskActivation = (id: CryptoUUID) => {
       dispatch({ type: "activate", id: id });

@@ -19,6 +19,7 @@ type TaskAction = {
   audioRef?: React.RefObject<HTMLAudioElement | null>;
   event?: DragEndEvent;
   setDraftEdit?: React.Dispatch<React.SetStateAction<string>>;
+  autoAdvance?: boolean;
 };
 
 export default function tasksReducer(
@@ -43,33 +44,40 @@ export default function tasksReducer(
 
       return updated;
     }
-    case "complete": {
-      if (!action.id) return tasks;
-      const completedIndex = tasks.findIndex((task) => task.id === action.id);
-      const wasUncompleted = !tasks[completedIndex]?.completed;
-      const updated = tasks.map((task) => {
-        if (task.id !== action.id) return task;
-        const target_completed = !task.completed;
-        if (target_completed && action.audioRef) {
-          action.audioRef.current?.play();
-        }
-        return {
-          ...task,
-          completed: target_completed,
-          active: target_completed ? false : task.active,
-        };
-      });
-      if (wasUncompleted) {
-        for (let i = completedIndex + 1; i < updated.length; i++) {
-          if (!updated[i].completed) {
-            updated[i] = { ...updated[i], active: true };
-            break;
-          }
-        }
-      }
-      localStorage.setItem("tasks", JSON.stringify(updated));
-      return updated;
-    }
+     case "complete": {
+       if (!action.id) return tasks;
+       const completedIndex = tasks.findIndex((task) => task.id === action.id);
+       const wasUncompleted = !tasks[completedIndex]?.completed;
+       const wasActive = tasks[completedIndex]?.active;
+       const updated = tasks.map((task) => {
+         if (task.id !== action.id) return task;
+         const target_completed = !task.completed;
+         if (target_completed && action.audioRef) {
+           action.audioRef.current?.play();
+         }
+         return {
+           ...task,
+           completed: target_completed,
+           active: target_completed ? false : task.active,
+         };
+       });
+       if (wasUncompleted && wasActive && action.autoAdvance === true) {
+         let nextActiveId: CryptoUUID | null = null;
+         for (let i = completedIndex + 1; i < updated.length; i++) {
+           if (!updated[i].completed) {
+             nextActiveId = updated[i].id;
+             break;
+           }
+         }
+         if (nextActiveId) {
+           for (let i = 0; i < updated.length; i++) {
+             updated[i] = { ...updated[i], active: updated[i].id === nextActiveId };
+           }
+         }
+       }
+       localStorage.setItem("tasks", JSON.stringify(updated));
+       return updated;
+     }
     case "activate": {
       const updated = tasks.map((task) => {
         return {
