@@ -28,6 +28,30 @@ const Stopwatch = ({
   const timerAudioRef = useRef<HTMLAudioElement | null>(null);
   const breakEndedRef = useRef(false);
 
+  const playBtnRef = useRef<HTMLButtonElement>(null);
+  const breakBtnRef = useRef<HTMLButtonElement>(null);
+  const skipBtnRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === " ") {
+        const target = e.target as HTMLElement;
+        if (
+          target.tagName === "INPUT" ||
+          target.tagName === "TEXTAREA" ||
+          target.isContentEditable
+        )
+          return;
+        e.preventDefault();
+        if (mode === "focus") breakBtnRef.current?.click();
+        else if (mode === "break") skipBtnRef.current?.click();
+        else playBtnRef.current?.click();
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [mode]);
+
   const timerSound = useSoundEffect(settings.soundEffect);
 
   const autoplayEnabled = settings.autoplay;
@@ -195,9 +219,11 @@ const Stopwatch = ({
           {mode === "focus" && (
             <>
               <Button
+                ref={breakBtnRef}
                 onClick={startBreak}
                 size="lg"
                 aria-description="Start break time"
+                onMouseUp={(e) => e.currentTarget.blur()}
               >
                 <FaCoffee />
               </Button>
@@ -205,18 +231,22 @@ const Stopwatch = ({
           )}
           {mode === "break" && (
             <Button
+              ref={skipBtnRef}
               onClick={resetStopwatch}
               size="lg"
               aria-description="Skip break and reset timer to 0"
+              onMouseUp={(e) => e.currentTarget.blur()}
             >
               <RiSkipForwardFill />
             </Button>
           )}
           {mode === "idle" && !isRinging && (
             <Button
+              ref={playBtnRef}
               onClick={startStopwatch}
               size="lg"
               aria-description="Start stopwatch"
+              onMouseUp={(e) => e.currentTarget.blur()}
             >
               <FaPlay />
             </Button>
@@ -238,6 +268,7 @@ const Stopwatch = ({
             disabled={mode !== "focus" && true}
             className={`${mode !== "focus" && "cursor-not-allowed"}`}
             aria-description="Reset timer to 0"
+            onMouseUp={(e) => e.currentTarget.blur()}
           >
             <FaRotateLeft />
           </Button>

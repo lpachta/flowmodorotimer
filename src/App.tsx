@@ -4,7 +4,7 @@ import Tasks, { type TaskType, type TasksHandle } from "./features/Tasks/Tasks";
 import useSettings from "./features/SettingsEditor/hooks/useSettings";
 import { FlowtimeNavigationMenu } from "./components/flowtime-nav";
 import { FaRegEyeSlash, FaRegEye } from "react-icons/fa";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { PiTarget } from "react-icons/pi";
 import Footer from "./components/footer";
 
@@ -16,6 +16,17 @@ function App() {
 
   const handleBreakEnd = useCallback(() => {
     tasksRef.current?.advanceToNextTask();
+  }, []);
+
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "Tab") {
+        e.preventDefault();
+        document.getElementById("newTaskInput")?.focus();
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
   }, []);
 
   function handleHideTaskSection() {

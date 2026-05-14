@@ -76,6 +76,7 @@ const Task = ({
         checked={task.completed}
         onChange={() => onComplete(task.id)}
         className="mr-3 accent-cerulean-400 cursor-pointer"
+        onMouseUp={(e) => e.currentTarget.blur()}
       />
       {task.currentlyEditing ? (
         <Input
@@ -91,27 +92,34 @@ const Task = ({
             task.completed && "text-current/50 line-through"
           }`}
           onClick={() => onModify(task.id)}
+          onMouseUp={(e) => e.currentTarget.blur()}
         >
           {task.name}
         </p>
       )}
       <span className="flex-shrink-0">
-        <FaRegTrashCan
-          className="cursor-pointer text-red-600 sm:invisible group-hover:visible"
+        <button
+          type="button"
+          onMouseUp={(e) => e.currentTarget.blur()}
           onClick={() => onDelete(task.id)}
-          size={16}
-        />
+          className="cursor-pointer text-red-600 sm:invisible group-hover:visible bg-transparent border-none p-0"
+        >
+          <FaRegTrashCan size={16} />
+        </button>
       </span>
       <span className="flex-shrink-0">
-        <PiTarget
+        <button
+          type="button"
+          onMouseUp={(e) => e.currentTarget.blur()}
           onClick={() => onActivate(task.id)}
-          className={`cursor-pointer  ${
+          className={`cursor-pointer bg-transparent border-none p-0 ${
             task.active
               ? "text-cerulean-400 group-hover:visible"
               : "sm:invisible group-hover:visible"
           }`}
-          size={22}
-        />
+        >
+          <PiTarget size={22} />
+        </button>
       </span>
       <span className="flex-shrink-0">
         <MdDragIndicator
