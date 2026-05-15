@@ -32,12 +32,14 @@ export default function SettingsEditor({ settings }: settingsType) {
       breakTimeDivisor: settings.draftBreakTimeDivisor,
       soundEffect: settings.draftSoundEffect,
       autoplay: settings.draftAutoplay,
+      keepAwake: settings.draftKeepAwake,
       taskSectionVisible: settings.taskSectionVisible,
     };
     localStorage.setItem("flowtime_settings", JSON.stringify(draftSettings));
     settings.setBreakTimeDivisor(settings.draftBreakTimeDivisor);
     settings.setSoundEffect(settings.draftSoundEffect);
     settings.setAutoplay(settings.draftAutoplay);
+    settings.setKeepAwake(settings.draftKeepAwake);
     setOpen(false);
   };
 
@@ -93,13 +95,21 @@ export default function SettingsEditor({ settings }: settingsType) {
               </div>
             </RadioGroup>
           </div>
-          <div className="flex items-center space-x-2 mb-8">
+          <div className="flex items-center space-x-2 mb-4">
             <Switch
               id="autoplay"
               defaultChecked={settings.draftAutoplay}
               onCheckedChange={(checked) => settings.setDraftAutoplay(checked)}
             />
             <Label htmlFor="autoplay">Autoplay next focus session</Label>
+          </div>
+          <div className="flex items-center space-x-2 mb-8">
+            <Switch
+              id="keepAwake"
+              defaultChecked={settings.draftKeepAwake}
+              onCheckedChange={(checked) => settings.setDraftKeepAwake(checked)}
+            />
+            <Label htmlFor="keepAwake">Keep screen awake during timer</Label>
           </div>
           <DialogFooter>
             <DialogClose asChild>
