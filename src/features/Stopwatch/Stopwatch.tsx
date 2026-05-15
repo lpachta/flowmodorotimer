@@ -10,6 +10,7 @@ import { MdMotionPhotosPaused } from "react-icons/md";
 import buttonSound from "../../assets/button_click.mp3";
 import type { settingsType } from "../SettingsEditor/SettingsEditor.tsx";
 import useSoundEffect from "./useSoundEffect.ts";
+import useWakeLock from "./useWakeLock.ts";
 
 type Interval = NodeJS.Timeout | null;
 type TimerMode = "idle" | "focus" | "break";
@@ -55,6 +56,9 @@ const Stopwatch = ({
   const timerSound = useSoundEffect(settings.soundEffect);
 
   const autoplayEnabled = settings.autoplay;
+  const keepAwakeEnabled = settings.keepAwake;
+
+  useWakeLock(keepAwakeEnabled && mode !== "idle");
 
   if (typeof window !== "undefined") {
     buttonAudioRef.current = new Audio(buttonSound);

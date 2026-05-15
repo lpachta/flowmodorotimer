@@ -5,6 +5,7 @@ type localStorageSettings = {
   breakTimeDivisor?: number;
   soundEffect?: SoundEffect;
   autoplay?: boolean;
+  keepAwake?: boolean;
   autoNextTask?: boolean;
   autoNextTaskOnComplete?: boolean;
   taskSectionVisible?: boolean;
@@ -22,6 +23,9 @@ export default function useSettings() {
 
   const [autoplay, setAutoplay] = useState<boolean>(false);
   const [draftAutoplay, setDraftAutoplay] = useState<boolean>(false);
+
+  const [keepAwake, setKeepAwake] = useState<boolean>(false);
+  const [draftKeepAwake, setDraftKeepAwake] = useState<boolean>(false);
 
   const [autoNextTask, setAutoNextTask] = useState<boolean>(false);
   const [draftAutoNextTask, setDraftAutoNextTask] = useState<boolean>(false);
@@ -50,6 +54,10 @@ export default function useSettings() {
       const parsedAutoplay = parsedSettings["autoplay"] || false;
       setAutoplay(parsedAutoplay);
       setDraftAutoplay(parsedAutoplay);
+
+      const parsedKeepAwake = parsedSettings["keepAwake"] || false;
+      setKeepAwake(parsedKeepAwake);
+      setDraftKeepAwake(parsedKeepAwake);
 
       const parsedAutoNextTask = parsedSettings["autoNextTask"] || false;
       setAutoNextTask(parsedAutoNextTask);
@@ -91,6 +99,10 @@ export default function useSettings() {
     setAutoplay,
     draftAutoplay,
     setDraftAutoplay,
+    keepAwake,
+    setKeepAwake,
+    draftKeepAwake,
+    setDraftKeepAwake,
     autoNextTask,
     setAutoNextTask,
     draftAutoNextTask,

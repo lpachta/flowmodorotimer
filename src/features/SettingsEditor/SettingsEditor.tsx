@@ -32,6 +32,7 @@ export default function SettingsEditor({ settings }: settingsType) {
       breakTimeDivisor: settings.draftBreakTimeDivisor,
       soundEffect: settings.draftSoundEffect,
       autoplay: settings.draftAutoplay,
+      keepAwake: settings.draftKeepAwake,
       autoNextTask: settings.draftAutoNextTask,
       autoNextTaskOnComplete: settings.draftAutoNextTaskOnComplete,
       ringUntilDismissed: settings.draftRingUntilDismissed,
@@ -41,6 +42,7 @@ export default function SettingsEditor({ settings }: settingsType) {
     settings.setBreakTimeDivisor(settings.draftBreakTimeDivisor);
     settings.setSoundEffect(settings.draftSoundEffect);
     settings.setAutoplay(settings.draftAutoplay);
+    settings.setKeepAwake(settings.draftKeepAwake);
     settings.setAutoNextTask(settings.draftAutoNextTask);
     settings.setAutoNextTaskOnComplete(settings.draftAutoNextTaskOnComplete);
     settings.setRingUntilDismissed(settings.draftRingUntilDismissed);
@@ -131,6 +133,14 @@ export default function SettingsEditor({ settings }: settingsType) {
               onCheckedChange={(checked) => settings.setDraftRingUntilDismissed(checked)}
             />
             <Label htmlFor="ringUntilDismissed">Ring until dismissed</Label>
+          </div>
+          <div className="flex items-center space-x-2 mb-8">
+            <Switch
+              id="keepAwake"
+              defaultChecked={settings.draftKeepAwake}
+              onCheckedChange={(checked) => settings.setDraftKeepAwake(checked)}
+            />
+            <Label htmlFor="keepAwake">Keep screen awake during timer</Label>
           </div>
           <DialogFooter>
             <DialogClose asChild>
